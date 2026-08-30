@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ivory text-charcoal antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif font-medium tracking-tight text-charcoal;
+  }
+}
+
+@layer components {
+  /* Signature motif: hairline Greek meander, used sparingly as a
+     section divider. Encoded as a repeating SVG background rather than
+     an icon font so it stays crisp at any width. */
+  .meander {
+    height: 14px;
+    width: 100%;
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: 28px 14px;
+    opacity: 0.5;
+  }
+  .meander-stone {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M0 1 H10 V9 H18 V1 H28' fill='none' stroke='%23B2A488' stroke-width='1.4'/%3E%3C/svg%3E");
+  }
+  .meander-bronze {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M0 1 H10 V9 H18 V1 H28' fill='none' stroke='%239C7A47' stroke-width='1.4'/%3E%3C/svg%3E");
+    opacity: 0.45;
+  }
+}
