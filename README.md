@@ -4,9 +4,35 @@ Bodyweight/resistance training platform. Next.js (App Router) + TypeScript + Tai
 
 ## Status
 
-**Stage 1 (Foundation) and Stage 2 (Homepage) are built.** Stages 3–6
-(Train, Progress, Toolkit, Learn) are not yet started — see the master
-build doc for the full plan.
+**Stages 1–3 are built**: Foundation, Homepage, and Train (Movement
+Vault, exercise detail, Programs, and the Workout Generator). Stages 4–6
+(Progress, Toolkit, Learn) are not yet started.
+
+### Stage 3 — Train
+
+| Route | What it does |
+|---|---|
+| `/train` | Landing page — links into Vault/Programs/Generator, category quick-links |
+| `/train/vault` | Movement Vault — client-side search + category tabs + difficulty/equipment/muscle filters over 21 exercises |
+| `/train/vault/[exercise]` | Exercise detail — instructions, mistakes, muscles, equipment, and a progression tree walked in both directions from the data |
+| `/train/programs` | Program cards (data-driven) |
+| `/train/programs/[program]` | Program detail — weekly schedule linking back into the Vault |
+| `/train/generator` | Client-side rule-based Workout Generator (goal/experience/duration/focus/equipment → a scored, generated workout) |
+
+**How the generator works** (`lib/workout-generator.ts`): every exercise
+is scored against the chosen experience level (difficulty fit) and focus
+(category fit), equipment-filtered, then round-robined across categories
+so a "Full Body" request doesn't come back all-push. A seeded shuffle
+only breaks ties between equally-scored candidates — press "Regenerate"
+for a different but equally valid workout, not a random one. No AI, no
+network call, just data + a scoring function.
+
+**Exercise dataset** (`data/exercises.ts`): 21 exercises across Push,
+Pull, Legs, Core, and Skills, each with real progression chains, e.g.
+`Incline Push-Up → Push-Up → Diamond Push-Up → Archer Push-Up →
+One-Arm Push-Up`. `ProgressionTree` walks the chain in both directions
+from whichever exercise you're viewing, so you always see the full line,
+not just your immediate neighbors.
 
 ## Run it
 
@@ -33,10 +59,16 @@ components/
   layout/             Navbar, MobileMenu, Footer
   home/               Homepage sections: Hero, ThreeAcademies,
                        FeaturedWorkout, StatsRow, JournalPreview, ClosingCTA
+  train/               Train components: VaultBrowser (client, search/filter),
+                       ExerciseCard, ProgressionTree, CategoryBadge/
+                       DifficultyLabel, ProgramCard, GeneratorForm (client),
+                       WorkoutResult
 data/                  Mock/static data — navigation, academies, ranks,
-                       stats, journal, hero copy, featured workout, quotes
+                       stats, journal, hero copy, featured workout, quotes,
+                       exercises (21-exercise Vault dataset), programs
 lib/
   utils.ts             cx() classname helper
+  workout-generator.ts  Pure, seeded, rule-based workout generation engine
 tailwind.config.ts      Design tokens: colors, fonts, radii — the single
                         source of truth for the visual system
 ```
@@ -86,5 +118,6 @@ there so Stage 3+ can add dropdowns without touching the data shape.
 
 ## Next
 
-Stage 3 — Train (mock exercise data, Movement Vault grid + filters,
-exercise detail with progression tree).
+Stage 4 — Progress (athlete profile, XP/levels, achievements, streak,
+movement mastery — the `ranks.ts` data staged in Stage 2 is ready to be
+consumed here).
