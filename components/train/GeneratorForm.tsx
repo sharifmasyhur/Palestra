@@ -73,7 +73,7 @@ export function GeneratorForm() {
           <legend className="text-xs font-semibold uppercase tracking-widest2 text-charcoal/60 mb-3">
             Experience Level
           </legend>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {experiences.map((e) => (
               <ChipButton key={e} active={experience === e} onClick={() => setExperience(e)}>
                 {e}
