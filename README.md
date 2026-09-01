@@ -19,20 +19,60 @@ Vault, exercise detail, Programs, and the Workout Generator). Stages 4–6
 | `/train/programs/[program]` | Program detail — weekly schedule linking back into the Vault |
 | `/train/generator` | Client-side rule-based Workout Generator (goal/experience/duration/focus/equipment → a scored, generated workout) |
 
-**How the generator works** (`lib/workout-generator.ts`): every exercise
-is scored against the chosen experience level (difficulty fit) and focus
-(category fit), equipment-filtered, then round-robined across categories
-so a "Full Body" request doesn't come back all-push. A seeded shuffle
-only breaks ties between equally-scored candidates — press "Regenerate"
-for a different but equally valid workout, not a random one. No AI, no
-network call, just data + a scoring function.
+**How the generator works** (`lib/workout-generator.ts`): fully
+deterministic, zero randomness (no `Math.random`, no PRNG). Every
+exercise is scored against experience level (difficulty fit) and focus
+(category fit), filtered by equipment, then selected round-robin across
+categories with two extra guards: a movement-pattern cap (multi-category
+focuses like "Full Body" allow at most one exercise per pattern, so a
+session can't stack five Horizontal Push movements) and a chain-adjacency
+check (an exercise is never selected alongside its direct progression
+neighbor — Push-Up and Diamond Push-Up won't appear in the same session,
+since that's redundant stimulus, not more work). "Regenerate" increments
+a `variationIndex` that deterministically *rotates* which equally-scored
+candidates surface first — same inputs + same index always produce the
+same workout, so it's reproducible, not arbitrary, while still surfacing
+a genuinely different valid session each click.
 
-**Exercise dataset** (`data/exercises.ts`): 21 exercises across Push,
-Pull, Legs, Core, and Skills, each with real progression chains, e.g.
-`Incline Push-Up → Push-Up → Diamond Push-Up → Archer Push-Up →
-One-Arm Push-Up`. `ProgressionTree` walks the chain in both directions
-from whichever exercise you're viewing, so you always see the full line,
-not just your immediate neighbors.
+**Data model separation**: `Exercise` (in `data/exercises.ts`) describes
+a movement in the abstract and never carries sets/reps/rest.
+`WorkoutExercise` (in `lib/workout-generator.ts`) is the prescription —
+built fresh at generation time, so the same `Exercise` gets different
+sets/reps/duration/rest depending on which workout it lands in and what
+goal was selected.
+
+**Exercise dataset** (`data/exercises.ts`): 71 exercises — Push 14,
+Pull 12, Legs 13, Core 16, Skills 16 — each carrying `movementPattern`
+(the functional pattern it trains — Horizontal Push, Hinge, Anti-Rotation,
+Lever, etc., 21 patterns total) and `cues` (short coaching phrases,
+separate from the numbered `instructions`), on top of difficulty,
+equipment, primary/secondary muscles, common mistakes, training
+recommendation, and progression links. Real chains, e.g. `Incline
+Push-Up → Push-Up → Diamond Push-Up → Archer Push-Up → One-Arm
+Push-Up`, occasionally crossing categories where that's how the skill
+actually develops (Elevated Pike Push-Up → Wall Handstand Push-Up).
+`ProgressionTree` walks the chain in both directions from whichever
+exercise you're viewing. Core alone spans six distinct movement
+families (anti-extension, flexion/compression, rotation, anti-rotation,
+static hold, dynamic core) rather than being a handful of plank
+variants. Skills is genuine advanced-calisthenics territory —
+handstand/handstand-push-up lines, front lever, back lever, planche,
+muscle-up, human flag — not a miscellaneous bucket.
+
+Verified after the expansion: all 71 slugs unique, all 94 progression
+references resolve to real exercises, every exercise has both
+`movementPattern` and `cues` populated, and the file type-checks clean
+(see `WORKOUT-GENERATOR.md`-style verification commands below if you
+want to re-run these yourself).
+
+```bash
+node --input-type=module -e "
+import fs from 'fs';
+const src = fs.readFileSync('data/exercises.ts','utf8');
+const slugs = [...src.matchAll(/^\s*slug: \"([a-z0-9-]+)\",\$/gm)].map(m=>m[1]);
+console.log('Total exercises:', slugs.length);
+"
+```
 
 ## Run it
 

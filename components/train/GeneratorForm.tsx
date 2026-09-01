@@ -27,7 +27,11 @@ export function GeneratorForm() {
   const [equipment, setEquipment] = useState<Equipment[]>(["None"]);
 
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null);
-  const [seed, setSeed] = useState(1);
+  // Deterministic rotation index — NOT a random seed. Incrementing it walks
+  // the generator to the next ranked-and-rotated candidate set, so
+  // "Regenerate" always produces a different, still-valid workout rather
+  // than a random one. Same variationIndex + same inputs => same result.
+  const [variationIndex, setVariationIndex] = useState(0);
 
   function toggleEquipment(item: Equipment) {
     setEquipment((prev) =>
@@ -36,12 +40,12 @@ export function GeneratorForm() {
   }
 
   function handleGenerate() {
-    const nextSeed = seed + 1;
-    setSeed(nextSeed);
+    const nextIndex = variationIndex + 1;
+    setVariationIndex(nextIndex);
     setWorkout(
       generateWorkout(
         { goal, experience, durationMinutes: duration, focus, equipment },
-        nextSeed
+        nextIndex
       )
     );
   }

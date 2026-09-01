@@ -34,9 +34,12 @@ export default function ExerciseDetailPage({ params }: { params: { exercise: str
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
           <PlaceholderImage tone="dark" className="h-72 md:h-full rounded-md min-h-[280px]" />
           <div>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-3">
               <CategoryBadge category={exercise.category} />
               <DifficultyLabel difficulty={exercise.difficulty} />
+            </div>
+            <div className="text-xs uppercase tracking-widest2 text-charcoal/45 mb-4">
+              {exercise.movementPattern} Pattern
             </div>
             <h1 className="font-serif italic text-4xl sm:text-3xl mb-5">{exercise.name}</h1>
             <p className="text-charcoal/70 text-[15px] mb-8 max-w-md">{exercise.shortDescription}</p>
@@ -81,6 +84,20 @@ export default function ExerciseDetailPage({ params }: { params: { exercise: str
                   </li>
                 ))}
               </ol>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="font-serif italic text-2xl mb-5">Coaching Cues</h2>
+              <div className="flex flex-wrap gap-2">
+                {exercise.cues.map((cue) => (
+                  <span
+                    key={cue}
+                    className="text-[13px] text-olive border border-sand rounded-full px-3.5 py-1.5 bg-sand/30"
+                  >
+                    {cue}
+                  </span>
+                ))}
+              </div>
             </section>
 
             <section className="mb-12">

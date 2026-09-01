@@ -55,7 +55,7 @@ export function WorkoutResult({ workout }: { workout: GeneratedWorkout }) {
               <div className="text-sm text-charcoal/80 text-right sm:text-left">
                 <div className="font-semibold">
                   {entry.sets} sets ×{" "}
-                  {entry.holdSeconds ? `${entry.holdSeconds}s hold` : `${entry.reps} reps`}
+                  {entry.durationSeconds ? `${entry.durationSeconds}s hold` : `${entry.reps} reps`}
                 </div>
                 <div className="text-charcoal/50 text-xs uppercase tracking-widest2 mt-0.5">
                   {entry.restSeconds}s rest
