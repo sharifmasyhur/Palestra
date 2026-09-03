@@ -1,9 +1,22 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { GeneratedWorkout } from "@/lib/workout-generator";
+import { createSession } from "@/lib/workout-session";
+import { writeStorage, STORAGE_KEYS } from "@/lib/storage";
 import { CategoryBadge } from "@/components/train/CategoryBadge";
+import { Button } from "@/components/ui/Button";
 
 export function WorkoutResult({ workout }: { workout: GeneratedWorkout }) {
+  const router = useRouter();
   const { input, entries, estimatedMinutes } = workout;
+
+  function handleStartWorkout() {
+    const session = createSession(workout);
+    writeStorage(STORAGE_KEYS.activeWorkout, session);
+    router.push("/train/execute");
+  }
 
   return (
     <div className="border border-sand rounded-md overflow-hidden">
@@ -64,6 +77,14 @@ export function WorkoutResult({ workout }: { workout: GeneratedWorkout }) {
             </li>
           ))}
         </ol>
+      )}
+
+      {entries.length > 0 && (
+        <div className="p-6 border-t border-sand bg-sand/20">
+          <Button onClick={handleStartWorkout} className="w-full justify-center">
+            Start Workout
+          </Button>
+        </div>
       )}
     </div>
   );
